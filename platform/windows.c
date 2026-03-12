@@ -46,6 +46,23 @@ static volatile LONG g_running  = 1;
 static serve_fn    g_handler    = NULL;
 
 /* ------------------------------------------------------------------ */
+/* memmem replacement (not available on Windows)                       */
+/* ------------------------------------------------------------------ */
+
+static void *wz_memmem(const void *haystack, size_t hlen,
+                        const void *needle, size_t nlen) {
+    if (nlen == 0) return (void *)haystack;
+    if (hlen < nlen) return NULL;
+    const char *h = (const char *)haystack;
+    const char *n = (const char *)needle;
+    for (size_t i = 0; i <= hlen - nlen; i++) {
+        if (memcmp(h + i, n, nlen) == 0)
+            return (void *)(h + i);
+    }
+    return NULL;
+}
+
+/* ------------------------------------------------------------------ */
 /* Connection slot helpers                                             */
 /* ------------------------------------------------------------------ */
 
@@ -189,7 +206,7 @@ void platform_run(serve_fn handler) {
                 arena.conn_bufs[slot][bytes] = '\0';
                 c->buf_len = bytes;
 
-                if (memmem(arena.conn_bufs[slot], bytes, "\r\n\r\n", 4)) {
+                if (wz_memmem(arena.conn_bufs[slot], bytes, "\r\n\r\n", 4)) {
                     g_handler(c, arena.conn_bufs[slot], bytes);
                     c->buf_len = 0;
                 }
@@ -216,12 +233,6 @@ void platform_run(serve_fn handler) {
 /* ------------------------------------------------------------------ */
 
 int platform_send_file(ConnState *c, const void *data, size_t len) {
-    /*
-     * For TransmitFile we would need a file HANDLE. Since we mmap
-     * the bundle and pointer into it, we send the memory directly.
-     * On high-end Windows this could be upgraded to a memory-mapped
-     * TransmitFile with a section handle.
-     */
     int sent = send((SOCKET)c->fd, (const char *)data, (int)len, 0);
     return sent;
 }
@@ -239,7 +250,8 @@ void platform_close(ConnState *c) {
 }
 
 uint64_t platform_now_ms(void) {
-    return (uint64_t)GetTickCount64();
+    return (uint64_t)GetTickCount();
 }
 
+#endif /* _WIN32 */
 #endif /* _WIN32 */
