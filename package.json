@@ -1,10 +1,6 @@
 {
     "name": "@davitotty/webzero",
-<<<<<<< HEAD
     "version": "1.0.1",
-=======
-    "version": "1.0.0",
->>>>>>> 38ba2c925942c3074670f9c31b3703f4b206263d
     "description": "Ultra-minimal web server for low-end hardware. Serves 5,000 req/sec on a Pentium III.",
     "keywords": [
         "web server",
