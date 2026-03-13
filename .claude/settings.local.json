@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__jcodemunch__get_repo_outline",
+      "mcp__jcodemunch__get_file_content"
+    ]
+  }
+}

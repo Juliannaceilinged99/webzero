@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebZero — The World's Smallest Web Server</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111;
+      --border: #1e1e1e;
+      --text: #e8e8e8;
+      --muted: #666;
+      --accent: #00d4aa;
+      --code-bg: #0d0d0d;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    header {
+      max-width: 800px; margin: 80px auto 0; padding: 0 24px;
+    }
+    .hero-image {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 32px;
+      border: 1px solid var(--border);
+      display: block;
+    }
+    h1 { font-size: 56px; letter-spacing: -2px; color: var(--accent); }
+    .tagline {
+      font-size: 18px; color: var(--muted); margin-top: 12px;
+    }
+    .badges { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+    .badge {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      font-size: 12px;
+      color: var(--accent);
+      border-radius: 4px;
+    }
+    main { max-width: 800px; margin: 48px auto; padding: 0 24px; }
+    section { margin-bottom: 48px; }
+    h2 {
+      font-size: 22px; color: var(--accent);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px; margin-bottom: 20px;
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 20px;
+      overflow-x: auto;
+      border-radius: 6px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .stat-number { font-size: 32px; color: var(--accent); display: block; }
+    .stat-label  { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    p { margin-bottom: 12px; color: #bbb; }
+    a { color: var(--accent); text-decoration: none; }
+    footer {
+      border-top: 1px solid var(--border);
+      max-width: 800px; margin: 48px auto;
+      padding: 24px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img
+      class="hero-image"
+      src="/1920-1080-sample.png"
+      alt="WebZero banner">
+    <h1>WebZero</h1>
+    <p class="tagline">A minimal web server built for old hardware.</p>
+    <div class="badges">
+      <span class="badge">C99</span>
+      <span class="badge">Linux + Windows XP</span>
+      <span class="badge">&lt; 80KB binary</span>
+      <span class="badge">Zero malloc during serving</span>
+      <span class="badge">Zero dependencies</span>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2>Quick Start</h2>
+      <pre># Build the server
+make
+
+# Build your site into a .web bundle
+node tools/wz.js build examples/landing-page
+
+# Serve it
+./webzero examples/landing-page.web 8080</pre>
+    </section>
+
+    <section>
+      <h2>Philosophy</h2>
+      <p>WebZero does one thing: serve static files insanely fast on minimal hardware.</p>
+      <p>The entire site is compiled into a single <strong>.web bundle</strong> — a binary file
+         that gets mmap'd into virtual memory at startup. Every asset is pre-compressed
+         with Brotli level 11. Every route is pre-indexed in a binary trie.</p>
+      <p>When a request arrives, the server does a trie lookup (1-3 pointer chases),
+         then calls <code>sendfile()</code>. There is no parsing, no allocation, no
+         string formatting.</p>
+    </section>
+
+    <section>
+      <h2>Performance</h2>
+      <div class="stat-grid">
+        <div class="stat">
+          <span class="stat-number">70KB</span>
+          <span class="stat-label">Linux static binary size</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">4MB</span>
+          <span class="stat-label">total memory footprint</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">0</span>
+          <span class="stat-label">malloc calls during serving</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">0</span>
+          <span class="stat-label">dependencies</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>The .web Bundle</h2>
+      <pre>node tools/wz.js inspect my-site.web
+
+=== WebZero Bundle: my-site.web ===
+magic        : 0x57454230
+version      : 1
+total size   : 48291 bytes
+
+Assets:
+  [0] text/html; charset=utf-8       12048B → 3291B (−72.7%) enc=1
+  [1] text/css                        4200B →  980B (−76.7%) enc=1
+  [2] application/javascript          8100B → 2100B (−74.1%) enc=1</pre>
+    </section>
+  </main>
+
+  <footer>
+    WebZero — Apache 2.0 — <a href="https://github.com/davitotty/webzero">github.com/davitotty/webzero</a>
+  </footer>
+</body>
+</html>

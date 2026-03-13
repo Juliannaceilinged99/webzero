@@ -1,0 +1,29 @@
+# .gitignore — WebZero
+
+# Build outputs
+webzero
+webzero-static
+webzero-debug
+webzero.exe
+*.o
+
+# Generated bundles
+*.web
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node (wz.js has zero deps, but just in case)
+node_modules/
+
+# Test artifacts
+bench/results/

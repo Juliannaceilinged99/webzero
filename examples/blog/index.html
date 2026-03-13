@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebZero Blog</title>
+  <style>
+    body { background:#0f0f0f; color:#ddd; font-family:Georgia,serif;
+           max-width:680px; margin:60px auto; padding:0 24px; }
+    h1 { color:#c8a96e; font-size:36px; }
+    .post { border-bottom:1px solid #222; padding:24px 0; }
+    .post h2 { color:#c8a96e; font-size:22px; margin-bottom:8px; }
+    .meta { color:#555; font-size:13px; font-family:monospace; }
+    p { line-height:1.8; color:#aaa; margin-top:12px; }
+  </style>
+</head>
+<body>
+  <h1>WebZero Blog</h1>
+  <p style="color:#555;font-family:monospace">A minimal blog powered by WebZero.</p>
+
+  <div class="post">
+    <h2>Building the World's Smallest Web Server</h2>
+    <div class="meta">2024-01-15 · 8 min read</div>
+    <p>When I set out to build WebZero, the goal was simple: serve static files on a Pentium III
+       with no heap allocations and no runtime dependencies. Here's how the .web bundle format
+       makes that possible...</p>
+  </div>
+
+  <div class="post">
+    <h2>Why epoll Edge-Triggered Mode?</h2>
+    <div class="meta">2024-01-08 · 5 min read</div>
+    <p>Level-triggered epoll is easier to reason about, but edge-triggered squeezes out every
+       last bit of throughput by eliminating redundant wake-ups. Learn how WebZero uses ET
+       mode with an accept-loop drain pattern...</p>
+  </div>
+
+  <div class="post">
+    <h2>The Bytecode VM for Dynamic Handlers</h2>
+    <div class="meta">2024-01-01 · 6 min read</div>
+    <p>For those rare cases when you need a contact form or a simple JSON API, WebZero includes
+       a 200-line stack-based bytecode interpreter. No malloc, no eval, just 12 opcodes...</p>
+  </div>
+</body>
+</html>
