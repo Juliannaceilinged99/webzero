@@ -24,7 +24,11 @@ static const char HDR_200_BR[] =
     "HTTP/1.1 200 OK\r\n"
     "Content-Encoding: br\r\n"
     "Cache-Control: max-age=31536000, immutable\r\n"
+<<<<<<< HEAD
     "Vary: Accept, Accept-Encoding\r\n"
+=======
+    "Vary: Accept-Encoding\r\n"
+>>>>>>> 38ba2c925942c3074670f9c31b3703f4b206263d
     "Content-Length: ";
 /* Append: <len>\r\n\r\n then asset bytes */
 
@@ -68,7 +72,10 @@ typedef struct {
     char  query[256];    /* raw query string after '?' */
     char  version[10];
     int   keep_alive;
+<<<<<<< HEAD
     int   accepts_webp;  /* non-zero if Accept header contains image/webp */
+=======
+>>>>>>> 38ba2c925942c3074670f9c31b3703f4b206263d
 } HTTPRequest;
 
 /*
@@ -106,14 +113,20 @@ static int parse_request(const uint8_t *buf, uint32_t len, HTTPRequest *req) {
     while (p < end && *p != '\r' && *p != '\n' && i < 9) req->version[i++] = *p++;
     req->version[i] = '\0';
 
+<<<<<<< HEAD
     /* Scan headers for Connection and Accept */
     req->keep_alive   = (strncmp(req->version, "HTTP/1.1", 8) == 0);
     req->accepts_webp = 0;
+=======
+    /* Scan headers for Connection */
+    req->keep_alive = (strncmp(req->version, "HTTP/1.1", 8) == 0);
+>>>>>>> 38ba2c925942c3074670f9c31b3703f4b206263d
     const char *h = p;
     while (h < end - 4) {
         if (*h == '\r' && *(h+1) == '\n') {
             h += 2;
             if (strncasecmp(h, "connection:", 11) == 0) {
+<<<<<<< HEAD
                 const char *v = h + 11;
                 while (v < end && *v == ' ') v++;
                 if (strncasecmp(v, "close", 5) == 0)      req->keep_alive = 0;
@@ -134,6 +147,14 @@ static int parse_request(const uint8_t *buf, uint32_t len, HTTPRequest *req) {
                 }
             }
             if (*h == '\r' && *(h+1) == '\n') break; /* blank line = end of headers */
+=======
+                h += 11;
+                while (h < end && *h == ' ') h++;
+                if (strncasecmp(h, "close", 5) == 0)      req->keep_alive = 0;
+                if (strncasecmp(h, "keep-alive", 10) == 0) req->keep_alive = 1;
+            }
+            if (*h == '\r' && *(h+1) == '\n') break; /* blank line = end */
+>>>>>>> 38ba2c925942c3074670f9c31b3703f4b206263d
         } else {
             h++;
         }
@@ -292,6 +313,7 @@ static void handle_request(ConnState *c, const uint8_t *buf, uint32_t len) {
             platform_send(c, HDR_500, sizeof(HDR_500) - 1);
         } else {
             const AssetEntry *asset = &g_bundle.assets[match.asset_idx];
+<<<<<<< HEAD
 
             /*
              * WebP content negotiation: if the client accepts image/webp and
@@ -305,6 +327,8 @@ static void handle_request(ConnState *c, const uint8_t *buf, uint32_t len) {
                 asset = &g_bundle.assets[asset->webp_idx];
             }
 
+=======
+>>>>>>> 38ba2c925942c3074670f9c31b3703f4b206263d
             if (!is_head) {
                 send_asset(c, asset);
             } else {

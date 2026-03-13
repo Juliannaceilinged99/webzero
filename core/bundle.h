@@ -22,6 +22,7 @@ typedef struct {
     uint32_t total_size;
 } __attribute__((packed)) BundleHeader;
 
+<<<<<<< HEAD
 /*
  * Asset entry — on-disk layout is exactly 56 bytes (matches wz.js ASSET_ENTRY_SIZE).
  *
@@ -46,6 +47,17 @@ typedef struct {
     int32_t  webp_idx;      /* index of WebP variant asset, or -1 */
     uint8_t  _pad2[4];
 } __attribute__((packed)) AssetEntry;
+=======
+/* Asset entry (stored as flat array in ASSETS section) */
+typedef struct {
+    uint32_t offset;        /* byte offset from start of bundle */
+    uint32_t compressed_len;
+    uint32_t original_len;
+    char     mime[32];      /* Content-Type string */
+    uint8_t  encoding;      /* 0=raw, 1=brotli */
+    uint8_t  _pad[3];
+} AssetEntry;
+>>>>>>> 38ba2c925942c3074670f9c31b3703f4b206263d
 
 /* Handler entry (stored as flat array in HANDLERS section) */
 typedef struct {
